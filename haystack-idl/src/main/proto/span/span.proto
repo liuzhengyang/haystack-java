@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option java_package = "com.expedia.open.tracing";
+option java_multiple_files = true;
+
+message Span {
+    string traceId = 1;
+    string spanId = 2;
+    string parentSpanId = 3;
+    string serviceName = 4;
+    string operationName = 5;
+
+    int64 startTime = 6;
+    int64 duration = 7;
+
+    repeated Log logs = 8;
+}
+
+message Log {
+    int64 timestamp = 1; // timestamp in microseconds since epoch
+    repeated Tag fields = 2;
+}
+
+message Tag {
+    enum TagType {
+        STRING = 0;
+        DOUBLE = 1;
+        BOOL = 2;
+        LONG = 3;
+        BINARY = 4;
+    }
+    string key = 1;
+    TagType type = 2;
+    oneof myvalue {
+        string vStr = 3;
+        int64 vLong = 4;
+        double vDouble = 5;
+        bool vBool = 6;
+        bytes vBytes = 7;
+    }
+}
+
+message Batch {
+    repeated Span spans = 1;
+}

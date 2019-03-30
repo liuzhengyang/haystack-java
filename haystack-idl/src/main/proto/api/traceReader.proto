@@ -1,0 +1,141 @@
+syntax = "proto3";
+import "span/span.proto";
+
+option java_package = "com.expedia.open.tracing.api";
+option java_multiple_files = true;
+
+message Trace {
+    string traceId = 1;
+    repeated Span childSpans = 2;
+}
+
+message TraceRequest {
+    string traceId = 1;
+}
+
+message RawTracesRequest {
+    repeated string traceId = 1;
+}
+
+message RawTracesResult {
+    repeated Trace traces = 1;
+}
+
+message SpanRequest {
+    string traceId = 1;
+    string spanId = 2;
+}
+
+message SpanResponse {
+    repeated Span spans = 1;
+}
+
+message Operand {
+    oneof operand {
+        Field field = 1;
+        ExpressionTree expression = 2;
+    }
+}
+
+message ExpressionTree {
+    enum Operator {
+        AND = 0;
+        OR = 1;
+    }
+
+    Operator operator = 1;
+    repeated Operand operands = 2;
+    bool isSpanLevelExpression = 3;
+}
+
+message TracesSearchRequest {
+    repeated Field fields = 1;
+    int64 startTime = 2;
+    int64 endTime = 3;
+    int32 limit = 4;
+    ExpressionTree filterExpression = 5;
+}
+
+message TracesSearchResult {
+    repeated Trace traces = 1;
+}
+
+message TraceCountsRequest {
+    repeated Field fields = 1;
+    int64 startTime = 2;
+    int64 endTime = 3;
+    int64 interval = 4;
+    ExpressionTree filterExpression = 5;
+}
+
+message TraceCounts {
+    repeated TraceCount traceCount = 1;
+}
+
+message TraceCount {
+    int64 timestamp = 1;
+    int64 count = 2;
+}
+
+message Field {
+    enum Operator {
+        EQUALS = 0;
+        GREATER_THAN = 1;
+        LESS_THAN = 2;
+    }
+
+    string name = 1;
+    string value = 2;
+    Operator operator = 3;
+}
+
+message Empty {}
+
+
+message FieldValuesRequest {
+    string fieldName = 1;
+    repeated Field filters = 2;
+}
+
+message FieldMetadata {
+    bool isRangeQuery = 1;
+}
+
+message FieldNames {
+    repeated string names = 1;
+    repeated FieldMetadata fieldMetadata = 2;
+}
+
+message FieldValues {
+    repeated string values = 1;
+}
+
+message CallNode {
+    string serviceName = 1;
+    string operationName = 2;
+    string infrastructureProvider = 3;
+    string infrastructureLocation = 4;
+    string duration = 5;
+}
+
+message Call {
+    CallNode from = 1;
+    CallNode to = 2;
+    int64 networkDelta = 3;
+}
+
+message TraceCallGraph {
+    repeated Call calls = 1;
+}
+
+service TraceReader {
+    rpc searchTraces (TracesSearchRequest) returns (TracesSearchResult);
+    rpc getTraceCounts (TraceCountsRequest) returns (TraceCounts);
+    rpc getTrace (TraceRequest) returns (Trace);
+    rpc getRawTrace (TraceRequest) returns (Trace);
+    rpc getRawSpan (SpanRequest) returns (SpanResponse);
+    rpc getFieldNames (Empty) returns (FieldNames);
+    rpc getFieldValues (FieldValuesRequest) returns (FieldValues);
+    rpc getTraceCallGraph (TraceRequest) returns (TraceCallGraph);
+    rpc getRawTraces (RawTracesRequest) returns (RawTracesResult);
+}

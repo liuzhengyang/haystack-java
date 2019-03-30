@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option java_package = "com.expedia.open.tracing.api.anomaly";
+option java_multiple_files = true;
+
+message SearchAnomaliesRequest {
+    map<string, string> labels = 1;
+    int64 startTime = 2;
+    int64 endTime = 3;
+    int32 size = 4;
+}
+
+message Anomaly {
+    double expectedValue = 1;
+    double observedValue = 2;
+    int64 timestamp = 3;
+}
+
+message SearchAnomalyResponse {
+    string name = 1;
+    map<string, string> labels = 2;
+    repeated Anomaly anomalies = 3;
+}
+
+message SearchAnomaliesResponse {
+    repeated SearchAnomalyResponse searchAnomalyResponse = 1;
+}
+
+service AnomalyReader {
+    rpc getAnomalies (SearchAnomaliesRequest) returns (SearchAnomaliesResponse);
+}

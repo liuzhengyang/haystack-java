@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option java_package = "com.expedia.open.tracing.backend";
+option java_multiple_files = true;
+
+message BackendField {
+    string name = 1;
+    string value = 2;
+}
+
+message Metadata {
+    repeated BackendField fields = 1;
+}
+
+message TraceRecord {
+    string traceId = 1;
+    bytes spans = 2;
+    Metadata metadata = 3;
+    int64 timestamp = 4;
+}
+
+message ReadSpansRequest {
+    repeated string traceIds = 1;
+}
+
+message ReadSpansResponse {
+    repeated TraceRecord records = 1;
+}
+
+message WriteSpansRequest {
+    repeated TraceRecord records = 1;
+}
+
+message WriteSpansResponse {
+    ResultCode code = 1;
+    string error_message = 2;
+
+    enum ResultCode {
+        SUCCESS = 0;
+        UNKNOWN_ERROR = 1;
+    }
+}
+
+service StorageBackend {
+    rpc writeSpans (WriteSpansRequest) returns (WriteSpansResponse);
+    rpc readSpans (ReadSpansRequest) returns (ReadSpansResponse);
+}
