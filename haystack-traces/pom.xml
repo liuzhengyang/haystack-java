@@ -15,6 +15,7 @@
     <modules>
         <module>backends</module>
         <module>haystack-trace-indexer</module>
+        <module>haystack-trace-commons</module>
     </modules>
 
     <dependencies>
