@@ -1,4 +1,4 @@
-package com.github.lzy.haystack.trace.indexer.writer;
+package com.github.lzy.haystack.trace.indexer.writer.grpc;
 
 import java.util.concurrent.Semaphore;
 
@@ -10,11 +10,11 @@ import com.expedia.open.tracing.backend.TraceRecord;
 import com.expedia.open.tracing.backend.WriteSpansRequest;
 import com.expedia.open.tracing.buffer.SpanBuffer;
 import com.github.lzy.haystack.trace.common.packer.PackedMessage;
+import com.github.lzy.haystack.trace.indexer.writer.TraceWriter;
 import com.google.protobuf.ByteString;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import lombok.val;
 
 /**
  * @author liuzhengyang

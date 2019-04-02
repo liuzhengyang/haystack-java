@@ -1,4 +1,4 @@
-package com.github.lzy.haystack.trace.indexer.writer;
+package com.github.lzy.haystack.trace.indexer.writer.grpc;
 
 import java.util.concurrent.Semaphore;
 
@@ -14,17 +14,23 @@ import io.grpc.stub.StreamObserver;
  */
 public class WriteSpanResponseObserver implements StreamObserver<WriteSpansResponse> {
 
-//    private Semaphore
-
     private static final Logger logger = LoggerFactory.getLogger(WriteSpanResponseObserver.class);
+
+    private final Semaphore inflightRequest;
+
+    public WriteSpanResponseObserver(Semaphore inflightRequest) {
+        this.inflightRequest = inflightRequest;
+    }
 
     @Override
     public void onNext(WriteSpansResponse writeSpansResponse) {
+        inflightRequest.release();
     }
 
     @Override
     public void onError(Throwable throwable) {
-
+        inflightRequest.release();
+        logger.error("Fail to write trace-backend with exception", throwable);
     }
 
     @Override

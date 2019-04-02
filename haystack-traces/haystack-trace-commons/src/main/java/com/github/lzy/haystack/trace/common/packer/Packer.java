@@ -37,7 +37,7 @@ public abstract class Packer<T extends GeneratedMessageV3> {
         }
     }
 
-    PackedMessage<T> apply(T protoObj) {
+    public PackedMessage<T> apply(T protoObj) {
         return new PackedMessage<T>(protoObj, this::pack, new PackedMetadata(getPackerType()));
     }
 
