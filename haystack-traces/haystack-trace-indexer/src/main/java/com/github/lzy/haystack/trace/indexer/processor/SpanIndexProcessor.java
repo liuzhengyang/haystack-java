@@ -71,8 +71,9 @@ public class SpanIndexProcessor implements StreamProcessor<String, Span>, Eldest
         if (currentTimestamp - pollIntervalMillis > lastEmitTimestamp) {
             long committableOffset = -1L;
 
-            List<SpanBufferWithMetadata> emittableSpanBuffers = spanBufferMemStore.getAndRemoveSpanBuffersOlderThan(currentTimestamp - bufferingWindowMillis);
+            List<SpanBufferWithMetadata> emittableSpanBuffers = spanBufferMemStore.getAndRemoveSpanBuffersOlderThan(currentTimestamp - 0);
 
+            System.out.println("emittable buffers" + emittableSpanBuffers);
             for (int i = 0; i < emittableSpanBuffers.size(); i++) {
                 SpanBufferWithMetadata buffer = emittableSpanBuffers.get(i);
                 SpanBuffer spanBuffer = buffer.getBuilder().build();

@@ -8,7 +8,9 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 
+import com.alibaba.fastjson.JSON;
 import com.expedia.open.tracing.buffer.SpanBuffer;
 import com.github.lzy.haystack.trace.common.packer.PackedMessage;
 import com.github.lzy.haystack.trace.indexer.writer.TraceWriter;
@@ -26,7 +28,7 @@ public class ElasticSearchWriter implements TraceWriter {
         if (indexDocument.isPresent()) {
             IndexRequest indexRequest = new IndexRequest("span")
                     .id(traceId)
-                    .source(indexDocument.get());
+                    .source(JSON.toJSONString(indexDocument.get()), XContentType.JSON);
             try {
                 restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {

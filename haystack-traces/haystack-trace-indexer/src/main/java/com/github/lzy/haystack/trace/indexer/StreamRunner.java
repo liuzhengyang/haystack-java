@@ -27,7 +27,7 @@ public class StreamRunner {
         System.out.println("Starting the span indexing stream...");
 
         SpanBufferMemoryStoreSupplier spanBufferMemoryStoreSupplier = new SpanBufferMemoryStoreSupplier(10, 10);
-        SpanIndexProcessorSupplier spanIndexProcessorSupplier = new SpanIndexProcessorSupplier();
+        SpanIndexProcessorSupplier spanIndexProcessorSupplier = new SpanIndexProcessorSupplier(traceWriters);
         Map<String, Object> kafkaProperties = new HashMap<>();
         kafkaProperties.put("bootstrap.servers", "127.0.0.1:9092");
         kafkaProperties.put("group.id", "spanIndexWriter");
