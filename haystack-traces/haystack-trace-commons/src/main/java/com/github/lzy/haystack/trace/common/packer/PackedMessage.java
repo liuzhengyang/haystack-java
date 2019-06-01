@@ -39,4 +39,8 @@ public class PackedMessage<T extends GeneratedMessageV3> {
                     .put(packedDataBytes).array();
         }
     }
+
+    public T getProtoObj() {
+        return protoObj;
+    }
 }

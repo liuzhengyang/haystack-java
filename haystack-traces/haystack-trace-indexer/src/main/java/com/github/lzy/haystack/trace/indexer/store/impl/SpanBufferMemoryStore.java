@@ -1,6 +1,7 @@
 package com.github.lzy.haystack.trace.indexer.store.impl;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.expedia.open.tracing.Span;
+import com.expedia.open.tracing.buffer.SpanBuffer;
 import com.github.lzy.haystack.trace.indexer.store.CacheSizeObserver;
 import com.github.lzy.haystack.trace.indexer.store.DynamicCacheSizer;
 import com.github.lzy.haystack.trace.indexer.store.EldestBufferedSpanEvictionListener;
@@ -37,8 +39,22 @@ public class SpanBufferMemoryStore implements SpanBufferKeyValueStore, CacheSize
 
     @Override
     public List<SpanBufferWithMetadata> getAndRemoveSpanBuffersOlderThan(Long timestamp) {
+        List<SpanBufferWithMetadata> result = new ArrayList<>();
 
-        return null;
+        Iterator<Map.Entry<String, SpanBufferWithMetadata>> iterator = map.entrySet().iterator();
+
+        boolean done = false;
+        while (!done && iterator.hasNext()) {
+            Map.Entry<String, SpanBufferWithMetadata> next = iterator.next();
+            if (next.getValue().getFirstSpanSeenAt() <= timestamp) {
+                iterator.remove();
+                totalSpansInMemStore -= next.getValue().getBuilder().getChildSpansCount();
+                result.add(next.getValue());
+            } else {
+                done = true;
+            }
+        }
+        return result;
     }
 
     @Override
@@ -48,12 +64,24 @@ public class SpanBufferMemoryStore implements SpanBufferKeyValueStore, CacheSize
 
     @Override
     public SpanBufferWithMetadata addOrUpdateSpanBuffer(String traceId, Span span, Long spanRecordTimestamp, Long offset) {
-        return null;
+        SpanBufferWithMetadata spanBufferWithMetadata = map.get(traceId);
+        if (spanBufferWithMetadata == null) {
+            SpanBuffer.Builder builder = SpanBuffer.newBuilder()
+                    .setTraceId(traceId)
+                    .addChildSpans(span);
+            spanBufferWithMetadata = new SpanBufferWithMetadata(builder, spanRecordTimestamp, offset);
+            map.put(traceId, spanBufferWithMetadata);
+        } else {
+            spanBufferWithMetadata.getBuilder().addChildSpans(span);
+        }
+        totalSpansInMemStore += 1;
+        return spanBufferWithMetadata;
     }
 
     @Override
     public void init() {
         dynamicCacheSizer.addCacheObserver(this);
+
 
         map = new LinkedHashMap<String, SpanBufferWithMetadata>() {
             @Override

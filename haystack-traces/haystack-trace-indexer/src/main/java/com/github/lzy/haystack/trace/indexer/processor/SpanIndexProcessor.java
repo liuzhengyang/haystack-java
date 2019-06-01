@@ -40,6 +40,7 @@ public class SpanIndexProcessor implements StreamProcessor<String, Span>, Eldest
         this.storeSupplier = storeSupplier;
         this.writers = writers;
         this.spanBufferPacker = spanBufferPacker;
+        spanBufferMemStore = storeSupplier.get();
     }
 
     @Override
@@ -59,6 +60,7 @@ public class SpanIndexProcessor implements StreamProcessor<String, Span>, Eldest
                     }
                 }
             });
+            mayBeEmit(currentTimestamp.get());
         } catch (Exception e) {
             logger.error("Fail to process records", e);
         }

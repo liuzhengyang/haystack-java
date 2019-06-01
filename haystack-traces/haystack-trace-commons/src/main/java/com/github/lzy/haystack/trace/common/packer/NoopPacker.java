@@ -9,6 +9,11 @@ import com.google.protobuf.GeneratedMessageV3;
  */
 public class NoopPacker<T extends GeneratedMessageV3> extends Packer<T> {
     @Override
+    protected PackerType getPackerType() {
+        return PackerType.NONE;
+    }
+
+    @Override
     protected OutputStream compressStream(OutputStream outputStream) {
         return null;
     }

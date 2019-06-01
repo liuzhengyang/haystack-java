@@ -57,7 +57,7 @@ public class GrpcTraceWriter implements TraceWriter {
 
         WriteSpansRequest writeSpansRequest = WriteSpansRequest.newBuilder().addRecords(singleRecord).build();
 
-        client.writeSpans(writeSpansRequest, new WriteSpanResponseObserver());
+        client.writeSpans(writeSpansRequest, new WriteSpanResponseObserver(new Semaphore(10)));
     }
 
     @Override
